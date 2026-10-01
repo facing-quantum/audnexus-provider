@@ -12,7 +12,6 @@ dist/
 # Environment and configuration
 .env
 .env.*
-!.env.example
 
 # Cache and temporary data
 .cache/
