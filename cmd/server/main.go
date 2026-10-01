@@ -11,11 +11,11 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/djdembeck/audnexus-provider/internal/api"
-	"github.com/djdembeck/audnexus-provider/internal/cache"
-	"github.com/djdembeck/audnexus-provider/internal/config"
-	"github.com/djdembeck/audnexus-provider/internal/handlers"
-	"github.com/djdembeck/audnexus-provider/internal/services"
+	"audnexus-provider/internal/api"
+	"audnexus-provider/internal/cache"
+	"audnexus-provider/internal/config"
+	"audnexus-provider/internal/handlers"
+	"audnexus-provider/internal/services"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
@@ -80,11 +80,22 @@ func main() {
 	router.Use(gin.Recovery())
 	router.Use(loggerMiddleware())
 
-	// Initialize cache and API client
+	// Initialize persistent cache and API clients
 	appCache := cache.New()
+	persistentCache, err := cache.NewPersistentCache(cfg.CacheDir, time.Duration(cfg.CacheTTL)*time.Second)
+	if err != nil {
+		logger.Warnf("Failed to initialize persistent disk cache at %s: %v, falling back to memory only", cfg.CacheDir, err)
+	}
+
 	apiClient := api.NewClient(cfg.AudnexusTimeout)
-	searchService := services.NewSearchService(apiClient, cfg)
-	metadataService := services.NewMetadataService(apiClient, cfg)
+	audibleClient := api.NewAudibleClient(cfg.AudnexusTimeout)
+	itunesClient := api.NewITunesClient(cfg.AudnexusTimeout)
+	googleBooksClient := api.NewGoogleBooksClient(cfg.AudnexusTimeout)
+	openLibClient := api.NewOpenLibraryClient(cfg.AudnexusTimeout)
+	audiobookCoversClient := api.NewAudiobookCoversClient(cfg.AudnexusTimeout)
+
+	searchService := services.NewAudiobookshelfPipelineSearchService(apiClient, audibleClient, itunesClient, googleBooksClient, openLibClient, cfg)
+	metadataService := services.NewEnrichedMetadataService(apiClient, audibleClient, itunesClient, audiobookCoversClient, persistentCache, cfg)
 
 	// Register routes
 	handlers.RegisterProviderRoutes(router)

@@ -9,7 +9,7 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/djdembeck/audnexus-provider/internal/models"
+	"audnexus-provider/internal/models"
 )
 
 const (

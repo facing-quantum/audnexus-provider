@@ -1,7 +1,9 @@
 package handlers
 
 import (
-	"github.com/djdembeck/audnexus-provider/internal/models"
+	"net/http"
+
+	"audnexus-provider/internal/models"
 	"github.com/gin-gonic/gin"
 )
 
@@ -11,18 +13,34 @@ func RegisterProviderRoutes(r *gin.Engine) {
 }
 
 func healthHandler(c *gin.Context) {
-	c.JSON(200, gin.H{"status": "healthy"})
+	c.JSON(http.StatusOK, gin.H{"status": "healthy"})
 }
 
 func providerHandler(c *gin.Context) {
 	provider := models.MediaProvider{
-		Identifier: "audnexus",
-		Title:      "Audnexus",
-		Types:      []string{"artist", "album"},
-		Features: []models.Feature{
-			{Type: "match", Name: "audnexus", Enabled: true},
-			{Type: "metadata", Name: "audnexus", Enabled: true},
+		Identifier: models.ProviderIdentifier,
+		Title:      "Audnexus Audiobook Provider",
+		Version:    "1.0.0",
+		Types: []models.TypeDefinition{
+			{
+				Type: 8, // Artist
+				Scheme: []models.Scheme{
+					{Scheme: models.ProviderIdentifier},
+				},
+			},
+			{
+				Type: 9, // Album
+				Scheme: []models.Scheme{
+					{Scheme: models.ProviderIdentifier},
+				},
+			},
+		},
+		Feature: []models.ProviderFeature{
+			{Type: "metadata", Key: "/audnexus/library/metadata"},
+			{Type: "match", Key: "/audnexus/library/metadata/matches"},
 		},
 	}
-	c.JSON(200, provider)
+	c.JSON(http.StatusOK, models.MediaProviderResponse{
+		MediaProvider: provider,
+	})
 }

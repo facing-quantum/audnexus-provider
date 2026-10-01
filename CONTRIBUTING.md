@@ -34,9 +34,9 @@ Before you ask a question, it is best to search for existing [Issues](https://gi
 
 If you then still feel the need to ask a question and need clarification, we recommend the following:
 
-- Open an [Issue](https://github.com/djdembeck/Audnexus.bundle/issues/new).
+- Open an [Issue](https://github.com/facing-quantum/Audnexus.bundle/issues/new).
 - Provide as much context as you can about what you're running into.
-- Provide project and platform versions (nodejs, npm, etc), depending on what seems relevant.
+- Provide Go version, OS/architecture, Plex Media Server version, and configuration.
 
 We will then take care of the issue as soon as possible.
 
@@ -123,23 +123,57 @@ Enhancement suggestions are tracked as [GitHub issues](https://github.com/djdemb
 - You may want to **include screenshots and animated GIFs** which help you demonstrate the steps or point out the part which the suggestion is related to. You can use [this tool](https://www.cockos.com/licecap/) to record GIFs on macOS and Windows, and [this tool](https://github.com/colinkeenan/silentcast) or [this tool](https://github.com/GNOME/byzanz) on Linux. <!-- this should only be included if the project has a GUI -->
 - **Explain why this enhancement would be useful** to most Audnexus.bundle users. You may also want to point out the other projects that solved it better and which could serve as inspiration.
 
-<!-- You might want to create an issue template for enhancement suggestions that can be used as a guide and that defines the structure of the information to be included. If you do so, reference it here in the description. -->
-
 ### Your First Code Contribution
-<!-- TODO
-include Setup of env, IDE and typical getting started instructions?
 
--->
+#### Prerequisites
+- **Go**: Version 1.24 or later
+- **Make**: For running build and test targets
+
+#### Repository Layout
+- `cmd/server/main.go`: Application entry point, CLI flags, configuration loading, and HTTP server lifecycle.
+- `internal/api/`: Clients for external APIs (Audnexus, Audible, iTunes, Google Books, Open Library, AudiobookCovers.com).
+- `internal/handlers/`: Plex HTTP endpoints (Provider discovery, Matches, Metadata, Images, Health).
+- `internal/services/`: Core business logic (SearchService, MetadataService, SyntheticService, scoring heuristics).
+- `internal/cache/`: Two-tier caching (in-memory LRU and persistent disk cache with Stale-While-Revalidate).
+- `internal/resilience/`: Resiliency primitives including Circuit Breaker.
+- `internal/models/`: Data representations and official Plex Media Provider JSON specifications.
+- `internal/utils/`: Title simplification, name sorting, and series sequence cleaning.
+
+#### Development Workflow
+1. Clone the repository and install dependencies:
+   ```bash
+   git clone https://github.com/facing-quantum/Audnexus.bundle.git
+   cd Audnexus.bundle
+   go mod download
+   ```
+2. Build the binary:
+   ```bash
+   make build
+   ```
+3. Run unit tests:
+   ```bash
+   make test
+   # or: go test -v ./...
+   ```
+4. Verify code formatting and linting:
+   ```bash
+   gofmt -s -w .
+   ```
+
+We practice **Test-Driven Development (TDD)**: when adding new features or fixing bugs, please write unit tests covering expected behavior and edge cases before or alongside implementation.
 
 ### Improving The Documentation
-<!-- TODO
-Updating, improving and correcting the documentation
-
--->
+Documentation improvements are warmly welcome! If you notice outdated information, broken links, or areas where setup instructions could be clearer, please submit a pull request updating `README.md`, `CHANGELOG.md`, or code comments.
 
 ## Styleguides
 ### Commit Messages
-This project uses [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/), and all PRs/contributions must use them as well.
+This project strictly enforces [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/). All commit messages and PR titles must follow this format:
+- `feat:` A new feature or capability
+- `fix:` A bug fix
+- `refactor:` A code change that neither fixes a bug nor adds a feature
+- `test:` Adding missing tests or correcting existing tests
+- `docs:` Documentation only changes
+- `chore:` Maintenance tasks, dependency updates, build tooling
 
 ## Join The Project Team
 <!-- TODO -->

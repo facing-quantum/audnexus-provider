@@ -27,6 +27,7 @@ type Config struct {
 	Port            int
 	CacheTTL        int
 	AudnexusTimeout int
+	CacheDir        string
 }
 
 // Load reads configuration from environment variables
@@ -41,6 +42,7 @@ func Load() (*Config, error) {
 		Port:                 getEnvInt("PORT", 8080),
 		CacheTTL:             getEnvInt("CACHE_TTL", 604800),
 		AudnexusTimeout:      getEnvInt("AUDNEXUS_TIMEOUT", 90),
+		CacheDir:             getEnv("CACHE_DIR", ".cache/audnexus"),
 	}
 
 	// Validate region

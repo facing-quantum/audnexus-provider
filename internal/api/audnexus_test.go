@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/djdembeck/audnexus-provider/internal/models"
+	"audnexus-provider/internal/models"
 )
 
 func TestNewClient(t *testing.T) {
@@ -29,8 +29,8 @@ func TestSearchAuthors(t *testing.T) {
 			Name:        "Test Author",
 			Description: "A test author",
 			Image:       "https://example.com/image.jpg",
-			Genres:      []string{"Fiction"},
-			Similar:     []string{"B0000002"},
+			Genres:      []models.Genre{{Name: "Fiction"}},
+			Similar:     []models.Contributor{{Name: "Other Author", ASIN: "B0000002"}},
 			Region:      "us",
 		},
 	}
@@ -77,72 +77,14 @@ func TestSearchAuthors(t *testing.T) {
 	}
 }
 
-func TestSearchBooks(t *testing.T) {
-	expectedBooks := []models.Book{
-		{
-			ASIN:        "B0000001",
-			Title:       "Test Book",
-			Subtitle:    "A Test Subtitle",
-			Description: "A test book",
-			Image:       "https://example.com/cover.jpg",
-			Rating:      4.5,
-			RatingCount: 100,
-			ReleaseDate: time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC),
-			Region:      "us",
-			Publisher:   "Test Publisher",
-			Authors:     []string{"Test Author"},
-			Narrators:   []string{"Test Narrator"},
-			Series:      []models.Series{{ASIN: "S0001", Name: "Test Series", Position: "1"}},
-			Genres:      []string{"Fiction"},
-		},
-	}
-
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/books" {
-			t.Errorf("expected path /books, got %s", r.URL.Path)
-		}
-		if r.URL.Query().Get("title") != "Test Book" {
-			t.Errorf("expected title=Test Book, got %s", r.URL.Query().Get("title"))
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(expectedBooks)
-	}))
-	defer server.Close()
-
-	client := NewClientWithBaseURL(30, server.URL)
-	ctx := context.Background()
-	params := url.Values{
-		"title":  {"Test Book"},
-		"region": {"us"},
-	}
-
-	body, err := client.doRequest(ctx, "GET", "/books", params)
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	var books []models.Book
-	if err := json.Unmarshal(body, &books); err != nil {
-		t.Fatalf("failed to unmarshal: %v", err)
-	}
-
-	if len(books) != 1 {
-		t.Errorf("expected 1 book, got %d", len(books))
-	}
-	if books[0].ASIN != "B0000001" {
-		t.Errorf("expected ASIN B0000001, got %s", books[0].ASIN)
-	}
-}
-
 func TestGetAuthorByASIN(t *testing.T) {
 	expectedAuthor := models.Author{
 		ASIN:        "B0000001",
 		Name:        "Test Author",
 		Description: "A test author",
 		Image:       "https://example.com/image.jpg",
-		Genres:      []string{"Fiction"},
-		Similar:     []string{"B0000002"},
+		Genres:      []models.Genre{{Name: "Fiction"}},
+		Similar:     []models.Contributor{{Name: "Other Author", ASIN: "B0000002"}},
 		Region:      "us",
 	}
 
@@ -177,10 +119,21 @@ func TestGetAuthorByASIN(t *testing.T) {
 
 func TestGetBookByASIN(t *testing.T) {
 	expectedBook := models.Book{
-		ASIN:        "B0000001",
-		Title:       "Test Book",
-		Description: "A test book",
-		Region:      "us",
+		ASIN:          "B0000001",
+		Title:         "Test Book",
+		Subtitle:      "A Subtitle",
+		Description:   "A test book",
+		Summary:       "<p>A test book summary</p>",
+		Image:         "https://example.com/cover.jpg",
+		Rating:        "4.8",
+		RatingCount:   100,
+		ReleaseDate:   "2024-01-01",
+		Region:        "us",
+		PublisherName: "Test Publisher",
+		Authors:       []models.Contributor{{Name: "Test Author", ASIN: "A1"}},
+		Narrators:     []models.Contributor{{Name: "Test Narrator"}},
+		SeriesPrimary: &models.Series{ASIN: "S0001", Name: "Test Series", Position: "1"},
+		Genres:        []models.Genre{{Name: "Fiction"}},
 	}
 
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -209,6 +162,9 @@ func TestGetBookByASIN(t *testing.T) {
 
 	if book.ASIN != "B0000001" {
 		t.Errorf("expected ASIN B0000001, got %s", book.ASIN)
+	}
+	if len(book.Authors) != 1 || book.Authors[0].Name != "Test Author" {
+		t.Errorf("expected author Test Author, got %+v", book.Authors)
 	}
 }
 

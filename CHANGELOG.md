@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-09-30
+
+### Added
+- **Audiobookshelf-Inspired Multi-Provider Pipeline**:
+  - Primary: Direct Audible Catalog search with Audnexus rich metadata enrichment
+  - Secondary fallback: iTunes / Apple Books search
+  - Tertiary fallback: Google Books API search with fuzzy matching and scoring
+  - Quaternary fallback: Open Library search fallback
+  - Safety net: Synthetic local match generator (`local_<hash>`)
+- **Metadata & Cover Enrichment**:
+  - AudiobookCovers.com integration for text-clean, high-resolution cover art
+  - Series sequence cleaner (`CleanSeriesSequence`) standardizing sequences like `"Book 1"` to `"1"`
+  - Audiobookshelf genre vs. tag separation (`genre` -> `Genre`, `tag` -> `Mood`)
+- **Resilience & Performance**:
+  - Circuit breaker pattern fast-failing unresponsive upstreams with automatic recovery
+  - Persistent two-tier cache (memory + disk) with Stale-While-Revalidate
+  - `singleflight.Group` deduplication preventing duplicate upstream calls during library scans
+- **Plex Media Provider Specification Compliance**:
+  - Top-level `MediaProvider` and `MediaContainer` JSON response envelopes
+  - Standard provider identifier `tv.plex.agents.custom.audnexus`
+  - Numeric metadata type definitions (8 for Artist, 9 for Album) with custom GUID scheme
+  - Structured Plex tag arrays (`Genre`, `Mood`, `Style`, `Similar` as `[{"tag": "..."}]`)
+  - Item `key` attribute (`/audnexus/library/metadata/{ratingKey}`) and external `Guid` array
+  - Support for Plex numeric match types (8/9) and `manual` scanner flag
+  - Dedicated `/audnexus/library/metadata/:ratingKey/images` endpoint
+  - Health check endpoint `GET /health`
+
+### Changed
+- Switched Go module path to generic `audnexus-provider`
+
+### Removed
+- Deprecated legacy Python Framework 2 bundle files (`Contents/`)
+- Obsolete AI agent tracking directories (`.sisyphus/`)
+
 ## [1.0.0] - 2026-02-09
 
 ### Added
