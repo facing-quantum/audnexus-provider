@@ -67,6 +67,7 @@ services:
     environment:
       - REGION=us
       - PORT=8080
+      - CACHE_DIR=/cache
     volumes:
       - audnexus-cache:/cache
 
@@ -102,7 +103,7 @@ Configuration is managed via environment variables or a `.env` file:
 |----------|---------|-------------|
 | `PORT` | `8080` | HTTP server port |
 | `REGION` | `us` | Audible region (`au`, `ca`, `de`, `es`, `fr`, `in`, `it`, `jp`, `us`, `uk`) |
-| `CACHE_DIR` | `~/.cache/audnexus` | Directory for persistent disk cache |
+| `CACHE_DIR` | `.cache/audnexus` (`/cache` in Docker) | Directory for persistent disk cache |
 | `CACHE_TTL` | `604800` | Cache TTL in seconds (default: 1 week) |
 | `AUDNEXUS_TIMEOUT` | `90` | API request timeout in seconds |
 | `KEEP_EXISTING_GENRES` | `false` | Keep existing Plex genres instead of replacing |
