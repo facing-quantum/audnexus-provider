@@ -52,14 +52,14 @@ docker run -d \
   -p 8080:8080 \
   -v audnexus-cache:/cache \
   -e REGION=us \
-  ghcr.io/facing-quantum/audnexus.bundle:latest
+  ghcr.io/facing-quantum/audnexus-provider:latest
 ```
 
 Or using Docker Compose:
 ```yaml
 services:
   audnexus-provider:
-    image: ghcr.io/facing-quantum/audnexus.bundle:latest
+    image: ghcr.io/facing-quantum/audnexus-provider:latest
     container_name: audnexus-provider
     restart: unless-stopped
     ports:
@@ -77,14 +77,14 @@ volumes:
 
 ### Download Binary (Standalone)
 
-Download the latest release binary for your platform from the [Releases](https://github.com/facing-quantum/Audnexus.bundle/releases) page.
+Download the latest release binary for your platform from the [Releases](https://github.com/facing-quantum/audnexus-provider/releases) page.
 
 ### Build from Source
 
 ```bash
 # Clone the repository
-git clone https://github.com/facing-quantum/Audnexus.bundle.git
-cd Audnexus.bundle
+git clone https://github.com/facing-quantum/audnexus-provider.git
+cd audnexus-provider
 
 # Build for current platform (outputs to bin/audnexus-provider)
 make build
