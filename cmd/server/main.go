@@ -45,7 +45,7 @@ func main() {
 	}
 
 	if version {
-		fmt.Println("audnexus-provider version 1.0.0")
+		fmt.Println("audnexus-provider version 2.0.0")
 		os.Exit(0)
 	}
 

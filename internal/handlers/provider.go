@@ -20,7 +20,7 @@ func providerHandler(c *gin.Context) {
 	provider := models.MediaProvider{
 		Identifier: models.ProviderIdentifier,
 		Title:      "Audnexus Audiobook Provider",
-		Version:    "1.0.0",
+		Version:    "2.0.0",
 		Types: []models.TypeDefinition{
 			{
 				Type: 8, // Artist

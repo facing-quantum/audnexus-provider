@@ -14,7 +14,7 @@ import (
 
 const (
 	defaultBaseURL = "https://api.audnex.us"
-	userAgent      = "audnexus-provider/1.0.0"
+	userAgent      = "audnexus-provider/2.0.0"
 	maxRetries     = 4
 )
 

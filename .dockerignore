@@ -1,0 +1,8 @@
+.git
+.github
+.vscode
+.cache
+bin/
+dist/
+*.md
+Makefile

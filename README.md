@@ -43,7 +43,38 @@ To ensure the highest match rates and data quality, metadata resolution follows 
 
 ## Installation
 
-### Download Binary (Recommended)
+### Docker (GHCR)
+
+Run directly with Docker:
+```bash
+docker run -d \
+  --name audnexus-provider \
+  -p 8080:8080 \
+  -v audnexus-cache:/cache \
+  -e REGION=us \
+  ghcr.io/facing-quantum/audnexus.bundle:latest
+```
+
+Or using Docker Compose:
+```yaml
+services:
+  audnexus-provider:
+    image: ghcr.io/facing-quantum/audnexus.bundle:latest
+    container_name: audnexus-provider
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - REGION=us
+      - PORT=8080
+    volumes:
+      - audnexus-cache:/cache
+
+volumes:
+  audnexus-cache:
+```
+
+### Download Binary (Standalone)
 
 Download the latest release binary for your platform from the [Releases](https://github.com/facing-quantum/Audnexus.bundle/releases) page.
 
