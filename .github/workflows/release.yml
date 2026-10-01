@@ -4,6 +4,11 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to release (e.g. v1.1.0)'
+        required: false
 
 permissions:
   contents: write
@@ -17,19 +22,35 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
-        go-version: '1.23'
+        go-version: '1.24'
+        cache: true
 
-    - name: Build binaries
+    - name: Run tests
+      run: go test -v ./...
+
+    - name: Build release binaries and checksums
       run: |
         mkdir -p dist
-        GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o dist/audnexus-provider-linux-amd64 ./cmd/server
-        GOOS=linux GOARCH=arm64 go build -ldflags="-s -w" -o dist/audnexus-provider-linux-arm64 ./cmd/server
-        GOOS=darwin GOARCH=amd64 go build -ldflags="-s -w" -o dist/audnexus-provider-darwin-amd64 ./cmd/server
-        GOOS=darwin GOARCH=arm64 go build -ldflags="-s -w" -o dist/audnexus-provider-darwin-arm64 ./cmd/server
-        GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -o dist/audnexus-provider-windows-amd64.exe ./cmd/server
+        platforms=(
+          "linux/amd64/audnexus-provider-linux-amd64"
+          "linux/arm64/audnexus-provider-linux-arm64"
+          "darwin/amd64/audnexus-provider-darwin-amd64"
+          "darwin/arm64/audnexus-provider-darwin-arm64"
+          "windows/amd64/audnexus-provider-windows-amd64.exe"
+        )
+        for p in "${platforms[@]}"; do
+          IFS='/' read -r os arch output <<< "$p"
+          echo "Building $output..."
+          GOOS=$os GOARCH=$arch CGO_ENABLED=0 go build -ldflags="-s -w" -o "dist/$output" ./cmd/server
+        done
+
+        cd dist
+        sha256sum * > checksums.txt
+        cd ..
 
     - name: Create Release
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       with:
+        tag_name: ${{ github.event.inputs.tag || github.ref_name }}
         files: dist/*
         generate_release_notes: true
