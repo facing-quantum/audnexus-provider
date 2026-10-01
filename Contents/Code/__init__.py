@@ -3,18 +3,32 @@
 # Proxies search and metadata calls to the modern audnexus-provider Go service.
 
 import json
+import os
 
 DEFAULT_PROVIDER_URL = 'http://localhost:8080'
 
 
 def get_provider_url():
-    """Retrieve the configured audnexus-provider base URL."""
+    """Retrieve the configured audnexus-provider base URL.
+    Checks AUDNEXUS_PROVIDER_URL and AUDNEXUS_URL environment variables first,
+    then Plex agent preferences (Prefs['provider_url']),
+    falling back to DEFAULT_PROVIDER_URL (http://localhost:8080).
+    """
+    # 1. Environment variables
+    for env_var in ('AUDNEXUS_PROVIDER_URL', 'AUDNEXUS_URL'):
+        val = os.environ.get(env_var)
+        if val and val.strip():
+            return val.strip().rstrip('/')
+
+    # 2. Plex Agent Preferences (configured via Plex Web)
     try:
         url = Prefs['provider_url']
         if url and url.strip():
             return url.strip().rstrip('/')
     except Exception:
         pass
+
+    # 3. Default fallback
     return DEFAULT_PROVIDER_URL
 
 
