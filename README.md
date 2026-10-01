@@ -124,19 +124,47 @@ export LOG_LEVEL=INFO
 
 ## Usage with Plex
 
-1. **Start the provider**:
+### Option 1: Music Library (Recommended for Prologue & Plexamp)
+
+Plex's native HTTP custom provider system only supports video libraries (Movies/TV), but audiobooks are best organized as a **Music** library in Plex so apps like **Prologue** and **Plexamp** can track progress, chapters, and bookmarks.
+
+This repository includes a lightweight **Python Bundle Shim** (`Contents/`) that bridges Plex Music libraries directly to the `audnexus-provider` service:
+
+1. **Start `audnexus-provider`** (via Docker or standalone binary):
+   ```bash
+   docker run -d --name audnexus-provider -p 8080:8080 -v audnexus-cache:/cache ghcr.io/facing-quantum/audnexus-provider:latest
+   ```
+
+2. **Install the Bundle Shim**:
+   Copy or symlink this repository (as `Audnexus.bundle`) into your Plex `Plug-ins` folder:
+   - **Linux**: `/var/lib/plexmediaserver/Library/Application Support/Plex Media Server/Plug-ins/Audnexus.bundle`
+   - **macOS**: `~/Library/Application Support/Plex Media Server/Plug-ins/Audnexus.bundle`
+   - **Windows**: `%LOCALAPPDATA%\Plex Media Server\Plug-ins\Audnexus.bundle`
+
+3. **Configure Library in Plex**:
+   - Create or edit a **Music** library (e.g. named "Audiobooks").
+   - Under **Advanced**:
+     - Scanner: **Plex Music Scanner**
+     - Agent: **Audnexus**
+   - (Optional) In **Settings > Agents > Artists / Albums > Audnexus**, set the provider URL if not running on `http://localhost:8080`.
+
+---
+
+### Option 2: Movie Library (Native Custom HTTP Provider)
+
+If you prefer treating single `.m4b` files as movies within Plex's native Custom Metadata Provider interface:
+
+1. **Start `audnexus-provider`**:
    ```bash
    ./bin/audnexus-provider
    ```
 
-2. **In Plex Web**, navigate to **Settings > Manage > Libraries** (or add a new Music library for audiobooks).
-
-3. Set the metadata provider URL to:
+2. In **Plex Web**, go to **Settings > Metadata Agents > + Add Provider**.
+3. Enter your provider URL:
    ```
    http://localhost:8080/audnexus
    ```
-
-4. Refresh metadata on your audiobook library.
+4. Create or edit a **Movie** library and select the custom **Audnexus** provider.
 
 ---
 

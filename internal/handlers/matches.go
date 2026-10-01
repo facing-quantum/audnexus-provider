@@ -51,21 +51,21 @@ func (h *MatchesHandler) handleMatches(c *gin.Context) {
 	switch v := req.Type.(type) {
 	case string:
 		s := strings.ToLower(strings.TrimSpace(v))
-		if s == "artist" {
+		if s == "artist" || s == "show" {
 			searchType = "artist"
-		} else if s == "album" || s == "track" {
+		} else if s == "album" || s == "track" || s == "movie" {
 			searchType = "album"
 		}
 	case float64:
-		if int(v) == 8 {
+		if int(v) == 8 || int(v) == 2 {
 			searchType = "artist"
-		} else if int(v) == 9 || int(v) == 10 {
+		} else if int(v) == 9 || int(v) == 10 || int(v) == 1 {
 			searchType = "album"
 		}
 	case int:
-		if v == 8 {
+		if v == 8 || v == 2 {
 			searchType = "artist"
-		} else if v == 9 || v == 10 {
+		} else if v == 9 || v == 10 || v == 1 {
 			searchType = "album"
 		}
 	}

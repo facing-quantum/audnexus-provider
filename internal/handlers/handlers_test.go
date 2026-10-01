@@ -58,23 +58,19 @@ func TestProviderEndpoint_SpecCompliance(t *testing.T) {
 		t.Errorf("expected identifier 'tv.plex.agents.custom.audnexus', got '%s'", provider.Identifier)
 	}
 
-	if len(provider.Types) != 2 {
-		t.Fatalf("expected 2 types, got %d", len(provider.Types))
+	if len(provider.Types) == 0 {
+		t.Fatalf("expected at least 1 type, got %d", len(provider.Types))
 	}
 
-	hasArtist := false
-	hasAlbum := false
+	hasMovieType := false
 	for _, td := range provider.Types {
-		if td.Type == 8 && len(td.Scheme) > 0 && td.Scheme[0].Scheme == "tv.plex.agents.custom.audnexus" {
-			hasArtist = true
-		}
-		if td.Type == 9 && len(td.Scheme) > 0 && td.Scheme[0].Scheme == "tv.plex.agents.custom.audnexus" {
-			hasAlbum = true
+		if td.Type == 1 && len(td.Scheme) > 0 && td.Scheme[0].Scheme == "tv.plex.agents.custom.audnexus" {
+			hasMovieType = true
 		}
 	}
 
-	if !hasArtist || !hasAlbum {
-		t.Errorf("missing artist (8) or album (9) type definitions with custom scheme: %+v", provider.Types)
+	if !hasMovieType {
+		t.Errorf("missing movie (1) type definition with custom scheme: %+v", provider.Types)
 	}
 
 	hasMetadataFeature := false
@@ -145,6 +141,16 @@ func TestMatchesEndpoint_PlexNumericTypeAndManualFlag(t *testing.T) {
 
 	if meta.GUID != "tv.plex.agents.custom.audnexus://artist/author_B001" {
 		t.Errorf("expected GUID tv.plex.agents.custom.audnexus://artist/author_B001, got %s", meta.GUID)
+	}
+
+	// Test: Accept type 1 (Movie)
+	bodyMovie := []byte(`{"type": 1, "title": "Brandon Sanderson", "manual": 0}`)
+	reqMovie, _ := http.NewRequest("POST", "/audnexus/library/metadata/matches", bytes.NewBuffer(bodyMovie))
+	reqMovie.Header.Set("Content-Type", "application/json")
+	wMovie := httptest.NewRecorder()
+	r.ServeHTTP(wMovie, reqMovie)
+	if wMovie.Code != http.StatusOK {
+		t.Fatalf("expected 200 for type 1 match, got %d", wMovie.Code)
 	}
 }
 

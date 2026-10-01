@@ -1,0 +1,8 @@
+[
+  {
+    "id": "provider_url",
+    "type": "text",
+    "label": "Audnexus Provider URL",
+    "default": "http://localhost:8080"
+  }
+]

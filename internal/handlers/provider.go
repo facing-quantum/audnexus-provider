@@ -23,13 +23,7 @@ func providerHandler(c *gin.Context) {
 		Version:    "2.0.0",
 		Types: []models.TypeDefinition{
 			{
-				Type: 8, // Artist
-				Scheme: []models.Scheme{
-					{Scheme: models.ProviderIdentifier},
-				},
-			},
-			{
-				Type: 9, // Album
+				Type: 1, // Movie (Plex Custom Metadata Provider spec)
 				Scheme: []models.Scheme{
 					{Scheme: models.ProviderIdentifier},
 				},

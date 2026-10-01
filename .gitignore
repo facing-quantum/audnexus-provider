@@ -31,6 +31,10 @@ vendor/
 # Logs
 *.log
 
+# Python bytecode
+*.pyc
+__pycache__/
+
 # OS artifacts
 .DS_Store
 Thumbs.db
